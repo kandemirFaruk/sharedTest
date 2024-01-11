@@ -5,7 +5,7 @@ import { nanoid } from "nanoid";
 const newTest = async (req, res) => {
   try {
     // Gelen istekten gerekli bilgileri al
-    const {userId, testName, description, questions } = req.body;
+    const { userId, testName, description, questions } = req.body;
 
     // Oluşturulan kodun veritabanında var olup olmadığını kontrol et
     let isCodeExist = true;
@@ -18,10 +18,11 @@ const newTest = async (req, res) => {
     }
 
     // Yeni bir test belgesi oluştur
-    const user = await User.findById({_id:userId});
+    const user = await User.findOne({ _id: userId });
+    console.log("user************** ", user);
 
     const createdTest = await Test.create({
-      creator:user._id,
+      creator: user._id,
       testName,
       description,
       questions,
@@ -31,10 +32,9 @@ const newTest = async (req, res) => {
     user.createdTest.push(generatedCode);
 
     await user.save();
-    
+
     // Başarı durumunu istemciye bildir
     res.status(201).json({ test: createdTest, code: generatedCode });
-    
   } catch (error) {
     console.log("Eroor: ", error);
     // Hata durumunu istemciye bildir
@@ -42,4 +42,25 @@ const newTest = async (req, res) => {
   }
 };
 
-export { newTest };
+const loginTest = async (req, res) => {
+  try {
+    const loginCode = req.body.code; // loginCode'ı req.body.code olarak alın
+
+    const isCodeExist = await Test.findOne({ code: loginCode });
+
+    if (isCodeExist) {
+      const questions = await Test.find();
+      res.status(201).json({
+        status: "success",
+        questions,
+      });
+    } else {
+      res.status(404).json({ error: "Kod bulunamadı" });
+    }
+  } catch (error) {
+    console.log("Error: ", error);
+    // Hata durumunu istemciye bildir
+    res.status(500).json({ error: "Sunucu Hatası" });
+  }
+};
+export { newTest, loginTest };
