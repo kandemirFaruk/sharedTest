@@ -44,11 +44,16 @@ const newTest = async (req, res) => {
 
 const loginTest = async (req, res) => {
   try {
-    const loginCode = req.body.code; // loginCode'ı req.body.code olarak alın
+    const { userID, loginCode } = req.body; // loginCode'ı req.body.code olarak alın
 
     const isCodeExist = await Test.findOne({ code: loginCode });
 
     if (isCodeExist) {
+      const user = await User.findOne({ _id: userID });
+
+      user.JoinedTest.push(loginCode);
+      await user.save();
+      
       const questions = await Test.find();
       res.status(201).json({
         status: "success",
@@ -63,4 +68,5 @@ const loginTest = async (req, res) => {
     res.status(500).json({ error: "Sunucu Hatası" });
   }
 };
+
 export { newTest, loginTest };
