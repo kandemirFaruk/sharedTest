@@ -1,0 +1,30 @@
+{
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "init": "^0.1.2",
+    "mongoose": "^8.0.1",
+    "nanoid": "^5.0.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "name": "bitirme-projesi",
+  "version": "1.0.0",
+  "description": "test uygulaması",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js"
+  },
+  "keywords": [
+    "test",
+    "sorusu",
+    "hazırlama",
+    "uygulaması"
+  ],
+  "author": "Faruk Kandemir",
+  "license": "ISC"
+}
