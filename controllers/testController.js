@@ -42,7 +42,34 @@ const newTest = async (req, res) => {
     res.status(500).json({ error: "Sunucu Hatası" });
   }
 };
-
+const getAllTest = async (req, res) => {
+  try {
+    const tests = await Test.find({});
+    res.status(200).json({
+      status: "success",
+      tests,
+    });
+    console.log("************ Test ************* /n", tests);
+  } catch (error) {
+    console.log("Error: ", error);
+    // Hata durumunu istemciye bildir
+    res.status(500).json({ error: "Sunucu Hatası" });
+  }
+};
+const getATest = async (req, res) => {
+  try {
+    const test_id = req.body;
+    const test = await Test.findOne({ _id: test_id });
+    res.status(200).json({
+      status: "success",
+      test,
+    });
+  } catch (error) {
+    console.log("Error: ", error);
+    // Hata durumunu istemciye bildir
+    res.status(500).json({ error: "Sunucu Hatası" });
+  }
+};
 const loginTest = async (req, res) => {
   try {
     const { userID, loginCode } = req.body; // loginCode'ı req.body.code olarak alın
@@ -54,7 +81,7 @@ const loginTest = async (req, res) => {
 
       user.JoinedTest.push(loginCode);
       await user.save();
-      
+
       const questions = await Test.find();
       res.status(201).json({
         message: "success",
@@ -70,4 +97,4 @@ const loginTest = async (req, res) => {
   }
 };
 
-export { newTest, loginTest };
+export { newTest, getAllTest, getATest, loginTest };
