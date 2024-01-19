@@ -15,9 +15,9 @@ const port = process.env.PORT;
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true })); 
 
-app.use("/",authRoute)
-app.use("/",userRoute)
-app.use("/abc",testRoute)
+app.use("/auth",authRoute)
+app.use("/user",userRoute)
+app.use("/test",testRoute)
 app.listen(port, () => {
   console.log(`App started on port ${port}`);
 });

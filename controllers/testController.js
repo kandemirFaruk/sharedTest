@@ -5,7 +5,7 @@ import { nanoid } from "nanoid";
 const newTest = async (req, res) => {
   try {
     // Gelen istekten gerekli bilgileri al
-    const { userId, testName, description, questions } = req.body;
+    const { userId, testName, description, questions, time } = req.body;
 
     // Oluşturulan kodun veritabanında var olup olmadığını kontrol et
     let isCodeExist = true;
@@ -27,6 +27,7 @@ const newTest = async (req, res) => {
       description,
       questions,
       code: generatedCode,
+      time,
     });
 
     user.createdTest.push(generatedCode);
@@ -36,7 +37,7 @@ const newTest = async (req, res) => {
     // Başarı durumunu istemciye bildir
     res.status(201).json({ test: createdTest, code: generatedCode });
   } catch (error) {
-    console.log("Eroor: ", error);
+    console.log("Eror: ", error);
     // Hata durumunu istemciye bildir
     res.status(500).json({ error: "Sunucu Hatası" });
   }
@@ -56,7 +57,7 @@ const loginTest = async (req, res) => {
       
       const questions = await Test.find();
       res.status(201).json({
-        status: "success",
+        message: "success",
         questions,
       });
     } else {

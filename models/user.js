@@ -3,7 +3,12 @@ import bcrypt from "bcrypt"
 const { Schema } = mongoose;
 
 const userModel = new Schema({
-  username: {
+  name: {
+    type: String,
+    trim: true,
+    required: true,
+  },
+  email: {
     type: String,
     trim: true,
     unique: true,
@@ -14,7 +19,11 @@ const userModel = new Schema({
     required: true,
   },
   createdTest: [],
-  JoinedTest: [],
+  joinedTest: [],
+  createDate:{
+    type:Date,
+    default:Date.now(),
+  }
 });
 
 userModel.pre('save', function(next) {

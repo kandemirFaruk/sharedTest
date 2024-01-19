@@ -17,7 +17,7 @@ const passwordChanged = async (req, res) => {
             user.password = newPassword.toString();
             await user.save();
             res.status(200).json({
-              status: "success",
+              message: "success",
             });
           }
         });

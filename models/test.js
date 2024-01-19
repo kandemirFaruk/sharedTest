@@ -17,6 +17,11 @@ const testModel = new Schema({
     required: true,
     trim: true,
   },
+  time: {
+    type: Number,
+    required: true,
+    trim: true,
+  },
   questions: [
     {
       question: {type: String,required: true,trim: true},
@@ -24,9 +29,7 @@ const testModel = new Schema({
       optionB: { type: String, required: true, trim: true },
       optionC: { type: String, required: true, trim: true },
       optionD: { type: String, required: true, trim: true },
-      optionE: { type: String, required: true, trim: true },
-      trueOption: { type: String, required: true, trim: true },
-      time: { type: Number, required: true },
+      trueAnswer: { type: String, required: true, trim: true },
     },
   ],
   code: {
