@@ -42,11 +42,12 @@ const newTest = async (req, res) => {
     res.status(500).json({ error: "Sunucu Hatası" });
   }
 };
-const getAllTest = async (req, res) => {
+const getUsersAllTest = async (req, res) => {
   try {
-    const tests = await Test.find({});
+    const { userId } = req.body;
+    const tests = await Test.find({ creator: userId });
     res.status(200).json({
-      status: "success",
+      message: "success",
       tests,
     });
     console.log("************ Test ************* /n", tests);
@@ -56,12 +57,12 @@ const getAllTest = async (req, res) => {
     res.status(500).json({ error: "Sunucu Hatası" });
   }
 };
-const getATest = async (req, res) => {
+const getUsersOneTest = async (req, res) => {
   try {
-    const test_id = req.body;
-    const test = await Test.findOne({ _id: test_id });
+    const { testId, userId } = req.body;
+    const test = await Test.findOne({ _id: testId, creator: userId });
     res.status(200).json({
-      status: "success",
+      message: "success",
       test,
     });
   } catch (error) {
@@ -97,4 +98,4 @@ const loginTest = async (req, res) => {
   }
 };
 
-export { newTest, getAllTest, getATest, loginTest };
+export { newTest, getUsersAllTest, getUsersOneTest, loginTest };
