@@ -41,6 +41,10 @@ const testModel = new Schema({
     required: true,
     default: false,
   },
+  createDate:{
+    type:Date,
+    default:Date.now(),
+  }
 });
 const Test = mongoose.model("Test", testModel);
 export default Test;
