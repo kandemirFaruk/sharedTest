@@ -76,11 +76,11 @@ const loginTest = async (req, res) => {
     const { userID, loginCode } = req.body; // loginCode'ı req.body.code olarak alın
 
     const isCodeExist = await Test.findOne({ code: loginCode });
-
     if (isCodeExist) {
       const user = await User.findOne({ _id: userID });
+      console.log("************ ",user," ***************")
 
-      user.JoinedTest.push(loginCode);
+      user.joinedTest.push(loginCode);
       await user.save();
 
       const questions = await Test.find();
