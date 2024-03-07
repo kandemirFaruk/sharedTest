@@ -1,6 +1,6 @@
 import Test from "../models/test.js";
 import User from "../models/user.js";
-import { nanoid } from "nanoid";
+import { customAlphabet } from "nanoid";
 
 const newTest = async (req, res) => {
   try {
@@ -11,15 +11,18 @@ const newTest = async (req, res) => {
     let isCodeExist = true;
     let generatedCode;
 
+    const alphabet =
+      "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
     // Kod veritabanında var olduğu sürece yeni kod oluştur
     while (isCodeExist) {
-      generatedCode = nanoid(6);
+      const generateRandomString = customAlphabet(alphabet, 6); // 6 karakterlik rastgele bir dize oluştur
+      generatedCode = generateRandomString();
       isCodeExist = await Test.findOne({ code: generatedCode });
     }
 
     // Yeni bir test belgesi oluştur
     const user = await User.findOne({ _id: userId });
-    console.log("user************** ", user);
 
     const createdTest = await Test.create({
       creator: user._id,
@@ -74,6 +77,7 @@ const getUsersOneTest = async (req, res) => {
 const loginTest = async (req, res) => {
   try {
     const { userID, loginCode } = req.body; // loginCode'ı req.body.code olarak alın
+    console.log(loginCode);
 
     const isCodeExist = await Test.findOne({ code: loginCode });
     if (isCodeExist) {
@@ -174,4 +178,4 @@ const questionResult = async (req, res) => {
     res.status(500).json({ message: "Sunucu Hatası!" });
   }
 };
-export { newTest, getUsersAllTest, getUsersOneTest, loginTest ,questionResult};
+export { newTest, getUsersAllTest, getUsersOneTest, loginTest, questionResult };
