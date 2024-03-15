@@ -1,6 +1,9 @@
+import { status } from "init";
+import Answer from "../models/answer.js";
 import Test from "../models/test.js";
 import User from "../models/user.js";
 import { customAlphabet } from "nanoid";
+import { json } from "express";
 
 const newTest = async (req, res) => {
   try {
@@ -79,19 +82,23 @@ const loginTest = async (req, res) => {
     const { userID, loginCode } = req.body; // loginCode'ı req.body.code olarak alın
 
     const isCodeExist = await Test.findOne({ code: loginCode });
-    if (isCodeExist) {
-      const user = await User.findOne({ _id: userID });
-
-      user.joinedTest.push(loginCode);
-      await user.save();
-
-      const questions = await Test.findOne({code:loginCode});
-      res.status(201).json({
-        message: "success",
-        questions,
-      });
+    if (isCodeExist.isClosed === true) {
+      res.status(400).json({ status: "Girdiğiniz test kapalıdır" });
     } else {
-      res.status(404).json({ error: "Kod bulunamadı" });
+      if (isCodeExist) {
+        const user = await User.findOne({ _id: userID });
+
+        user.joinedTest.push(loginCode);
+        await user.save();
+
+        const questions = await Test.findOne({ code: loginCode });
+        res.status(201).json({
+          message: "success",
+          questions,
+        });
+      } else {
+        res.status(404).json({ error: "Kod bulunamadı" });
+      }
     }
   } catch (error) {
     console.log("Error: ", error);
@@ -176,4 +183,31 @@ const questionResult = async (req, res) => {
     res.status(500).json({ message: "Sunucu Hatası!" });
   }
 };
-export { newTest, getUsersAllTest, getUsersOneTest, loginTest, questionResult };
+
+const getCloseTest = async (req, res) => {
+  try {
+    const { testID, isClosed } = req.body;
+    const test = await Test.findOne({ _id: testID });
+
+    if (test.isClosed === false) {
+      test.isClosed = isClosed;
+      test.code="0"
+      await test.save();
+      res.status(200).json({ status: "Succeses", test });
+    }
+    else{
+      res.status(400).json({status:"Test Kapalı."});
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Sunucu Hatası!" });
+  }
+};
+export {
+  newTest,
+  getUsersAllTest,
+  getUsersOneTest,
+  loginTest,
+  questionResult,
+  getCloseTest,
+};
