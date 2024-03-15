@@ -1,9 +1,7 @@
-import { status } from "init";
 import Answer from "../models/answer.js";
 import Test from "../models/test.js";
 import User from "../models/user.js";
 import { customAlphabet } from "nanoid";
-import { json } from "express";
 
 const newTest = async (req, res) => {
   try {
