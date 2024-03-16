@@ -54,9 +54,7 @@ const getUsersAllTest = async (req, res) => {
       message: "success",
       tests,
     });
-    console.log("************ Test ************* /n", tests);
   } catch (error) {
-    console.log("Error: ", error);
     // Hata durumunu istemciye bildir
     res.status(500).json({ error: "Sunucu Hatası" });
   }
@@ -70,7 +68,6 @@ const getUsersOneTest = async (req, res) => {
       test,
     });
   } catch (error) {
-    console.log("Error: ", error);
     // Hata durumunu istemciye bildir
     res.status(500).json({ error: "Sunucu Hatası" });
   }
@@ -116,6 +113,7 @@ const questionResult = async (req, res) => {
     const question = test.questions.find(
       (q) => q._id.toString() === questionID
     );
+    console.log(question)
 
     if (!question) {
       return res.status(404).json("Soru bulunamadı!");
@@ -149,11 +147,9 @@ const questionResult = async (req, res) => {
       ],
     };
 
-    // **Cevapları Kaydet:**
 
     // Mevcut cevabı kontrol et
-    const existingAnswer = await Answer.findOne({ testID, userID });
-    console.log(existingAnswer);
+    const existingAnswer = await Answer.findOne({ testID, users: { $elemMatch: { userID } } });
 
     if (existingAnswer) {
       // Mevcut cevaba yeni soru ekle
@@ -189,17 +185,22 @@ const getCloseTest = async (req, res) => {
 
     if (test.isClosed === false) {
       test.isClosed = isClosed;
-      test.code="0"
+      test.code = "0";
       await test.save();
       res.status(200).json({ status: "Succeses", test });
-    }
-    else{
-      res.status(400).json({status:"Test Kapalı."});
+    } else {
+      res.status(400).json({ status: "Test Kapalı." });
     }
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Sunucu Hatası!" });
   }
+};
+const getATestResults = async (req, res) => {
+  try {
+    const {testID} = req.body
+    
+  } catch (error) {}
 };
 export {
   newTest,
@@ -208,4 +209,5 @@ export {
   loginTest,
   questionResult,
   getCloseTest,
+  getATestResults,
 };
