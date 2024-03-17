@@ -77,22 +77,28 @@ const loginTest = async (req, res) => {
     const { userID, loginCode } = req.body; // loginCode'ı req.body.code olarak alın
 
     const isCodeExist = await Test.findOne({ code: loginCode });
-    if (isCodeExist.isClosed === true) {
+    if (isCodeExist?.isClosed === true) {
       res.status(400).json({ status: "Girdiğiniz test kapalıdır" });
     } else {
-      if (isCodeExist) {
-        const user = await User.findOne({ _id: userID });
+      const user = await User.findOne({ _id: userID });
 
-        user.joinedTest.push(loginCode);
-        await user.save();
-
-        const questions = await Test.findOne({ code: loginCode });
-        res.status(201).json({
-          message: "success",
-          questions,
-        });
+      if (user.joinedTest.includes(loginCode)) {
+        // Kullanıcı daha önce bu teste giriş yapmışsa
+        res.status(400).json({ status: "Bu teste zaten giriş yapmışsınız" });
       } else {
-        res.status(404).json({ error: "Kod bulunamadı" });
+        // Kullanıcı ilk defa teste giriş yapıyorsa
+        if (isCodeExist) {
+          user.joinedTest.push(loginCode);
+          await user.save();
+
+          const test = await Test.findOne({ code: loginCode });
+          res.status(201).json({
+            message: "success",
+            test,
+          });
+        } else {
+          res.status(404).json({ error: "Kod bulunamadı" });
+        }
       }
     }
   } catch (error) {
@@ -113,7 +119,7 @@ const questionResult = async (req, res) => {
     const question = test.questions.find(
       (q) => q._id.toString() === questionID
     );
-    console.log(question)
+    console.log(question);
 
     if (!question) {
       return res.status(404).json("Soru bulunamadı!");
@@ -135,6 +141,7 @@ const questionResult = async (req, res) => {
       users: [
         {
           userID,
+          name:user.name,
           answer: [
             {
               question: question.question,
@@ -147,9 +154,11 @@ const questionResult = async (req, res) => {
       ],
     };
 
-
     // Mevcut cevabı kontrol et
-    const existingAnswer = await Answer.findOne({ testID, users: { $elemMatch: { userID } } });
+    const existingAnswer = await Answer.findOne({
+      testID,
+      users: { $elemMatch: { userID } },
+    });
 
     if (existingAnswer) {
       // Mevcut cevaba yeni soru ekle
@@ -184,7 +193,7 @@ const getCloseTest = async (req, res) => {
     const test = await Test.findOne({ _id: testID });
 
     if (test.isClosed === false) {
-      test.isClosed = isClosed;
+      test.isClosed = true;
       test.code = "0";
       await test.save();
       res.status(200).json({ status: "Succeses", test });
@@ -196,12 +205,7 @@ const getCloseTest = async (req, res) => {
     res.status(500).json({ message: "Sunucu Hatası!" });
   }
 };
-const getATestResults = async (req, res) => {
-  try {
-    const {testID} = req.body
-    
-  } catch (error) {}
-};
+
 export {
   newTest,
   getUsersAllTest,
@@ -209,5 +213,4 @@ export {
   loginTest,
   questionResult,
   getCloseTest,
-  getATestResults,
 };
