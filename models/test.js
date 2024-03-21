@@ -43,7 +43,7 @@ const testModel = new Schema({
   },
   createDate:{
     type:Date,
-    default:Date.now(),
+    default:Date.now,
   }
 });
 const Test = mongoose.model("Test", testModel);

@@ -49,7 +49,7 @@ const newTest = async (req, res) => {
 const getUsersAllTest = async (req, res) => {
   try {
     const { userId } = req.body;
-    const tests = await Test.find({ creator: userId })
+    const tests = await Test.find({ creator: userId });
     res.status(200).json({
       message: "success",
       tests,
@@ -241,7 +241,7 @@ const getATestUserResult = async (req, res) => {
         Answers: result.users.map((user) => ({
           UserID: user.userID,
           Name: user.name,
-          createDate:result.users.createDate,
+          createDate: result.users.createDate,
           AnswerList: user.answer.map((answer) => ({
             Question: answer.question,
             Answer: answer.answer,
@@ -249,19 +249,64 @@ const getATestUserResult = async (req, res) => {
             Result: answer.result,
           })),
         })),
-        createDate: testResults.createDate
+        createDate: testResults.createDate,
       };
 
       formattedResults.push(formattedResult);
     });
 
-    res.status(201).json(formattedResults)
+    res.status(201).json(formattedResults);
   } catch (error) {
     console.log("Error:", error);
     res.status(500).json({ error: "Sunucu Hatası" });
   }
 };
-
+const getAllUsersTestResponses = async (req, res) => {
+  try {
+    const { testID } = req.body;
+  
+    // Verilen testID'ye sahip olan tüm cevapları bul
+    const testResults = await Answer.find({ testID }).sort({ createDate: -1 });
+  
+    // Eğer sonuç yoksa veya boşsa, 404 döndür
+    if (!testResults || testResults.length === 0) {
+      return res.status(404).json("Bu test için cevap bulunamadı.");
+    }
+  
+    // Tüm testlerin adını bul
+    const testName = await Test.findOne({ _id: testID }).select("testName");
+  
+    // Formatlanmış sonuçları tutacak bir dizi oluştur
+    const formattedResults = [];
+  
+    // Her test sonucunu döngüye al ve formatla
+    testResults.forEach((result) => {
+      const formattedResult = {
+        TestId: result.testID,
+        TestName: testName.testName,
+        Answers: result.users.map((user) => ({
+          UserID: user.userID,
+          Name: user.name,
+          AnswerList: user.answer.map((answer) => ({
+            Question: answer.question,
+            Answer: answer.answer,
+            TrueAnswer: answer.trueAnswer,
+            Result: answer.result,
+          })),
+          createDate: result.createDate
+        }))
+      };
+  
+      formattedResults.push(formattedResult);
+    });
+  
+    res.status(200).json(formattedResults);
+  } catch (error) {
+    console.log("Error:", error);
+    res.status(500).json({ error: "Sunucu Hatası" });
+  }
+  
+};
 export {
   newTest,
   getUsersAllTest,
@@ -270,4 +315,5 @@ export {
   questionResult,
   getCloseTest,
   getATestUserResult,
+  getAllUsersTestResponses,
 };
