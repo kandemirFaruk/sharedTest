@@ -16,6 +16,10 @@ const answerModel = new Schema({
         type: String,
         required: true,
       },
+      createDate: {
+        type: Date,
+        default: Date.now(),
+      },
       answer: [],
     },
   ],

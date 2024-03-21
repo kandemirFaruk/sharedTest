@@ -49,7 +49,7 @@ const newTest = async (req, res) => {
 const getUsersAllTest = async (req, res) => {
   try {
     const { userId } = req.body;
-    const tests = await Test.find({ creator: userId });
+    const tests = await Test.find({ creator: userId })
     res.status(200).json({
       message: "success",
       tests,
@@ -141,7 +141,7 @@ const questionResult = async (req, res) => {
       users: [
         {
           userID,
-          name:user.name,
+          name: user.name,
           answer: [
             {
               question: question.question,
@@ -189,7 +189,7 @@ const questionResult = async (req, res) => {
 
 const getCloseTest = async (req, res) => {
   try {
-    const { testID, isClosed } = req.body;
+    const { testID } = req.body;
     const test = await Test.findOne({ _id: testID });
 
     if (test.isClosed === false) {
@@ -206,6 +206,62 @@ const getCloseTest = async (req, res) => {
   }
 };
 
+const getATestUserResult = async (req, res) => {
+  try {
+    const { userID } = req.body;
+    const testResults = await Answer.find({
+      users: { $elemMatch: { userID } },
+    }).sort({ createDate: -1 });
+
+    if (!testResults || testResults.length === 0) {
+      return res.status(404).json("Bu sınav için cevap bulunamadı.");
+    }
+
+    // Tüm testlerin ID'lerini bir diziye topla
+    const testIDs = testResults.map((result) => result.testID);
+
+    // Tüm testlerin adlarını bir kereye mahsus olarak al
+    const tests = await Test.find({ _id: { $in: testIDs } }).select(
+      "_id testName"
+    );
+
+    // Her testin ID'sini anahtar olarak kullanarak bir obje oluştur
+    const testNamesMap = {};
+    tests.forEach((test) => {
+      testNamesMap[test._id] = test.testName;
+    });
+
+    const formattedResults = [];
+
+    testResults.forEach((result) => {
+      const testName = testNamesMap[result.testID];
+      const formattedResult = {
+        TestId: result.testID,
+        TestName: testName,
+        Answers: result.users.map((user) => ({
+          UserID: user.userID,
+          Name: user.name,
+          createDate:result.users.createDate,
+          AnswerList: user.answer.map((answer) => ({
+            Question: answer.question,
+            Answer: answer.answer,
+            TrueAnswer: answer.trueAnswer,
+            Result: answer.result,
+          })),
+        })),
+        createDate: testResults.createDate
+      };
+
+      formattedResults.push(formattedResult);
+    });
+
+    res.status(201).json(formattedResults)
+  } catch (error) {
+    console.log("Error:", error);
+    res.status(500).json({ error: "Sunucu Hatası" });
+  }
+};
+
 export {
   newTest,
   getUsersAllTest,
@@ -213,4 +269,5 @@ export {
   loginTest,
   questionResult,
   getCloseTest,
+  getATestUserResult,
 };
